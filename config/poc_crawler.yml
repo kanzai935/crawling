@@ -1,0 +1,40 @@
+# Example scraper to demonstrate Memorious XPath narrowing
+name: poc
+description: Books to scraper
+# Uncomment to run this scraper automatically:
+# schedule: weekly
+pipeline:
+  init:
+    # Start URL
+    method: seed
+    params:
+      urls:
+        - http://books.toscrape.com/
+    handle:
+      pass: fetch
+  fetch:
+    # Download the page passed from the seed stage.
+    method: fetch
+    handle:
+      pass: parse
+    params:
+      # These rules specify which pages should be scraped or included:
+      rules:
+        and:
+          - domain: books.toscrape.com
+  parse:
+    # Crawl the HTML of the page passed in to extract specific things.
+    method: parse
+    params:
+      store:
+        mime_group: images
+    handle:
+      # If the 'fetch' rule is invoked, re-trigger the fetch stage
+      fetch: fetch
+      # Otherwise, pass data on to the store stage
+      store: store
+  store:
+    # Store the crawled documents to a directory
+    method: directory
+    params:
+      path: /data/results
